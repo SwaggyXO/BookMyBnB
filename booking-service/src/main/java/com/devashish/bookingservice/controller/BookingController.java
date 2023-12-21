@@ -4,6 +4,7 @@ import com.devashish.bookingservice.dto.BookingRequest;
 import com.devashish.bookingservice.dto.PaymentRequest;
 import com.devashish.bookingservice.entity.Booking;
 import com.devashish.bookingservice.service.BookingService;
+import com.devashish.bookingservice.utils.exception.InvalidPaymentMethodException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,13 +19,14 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class BookingController {
 
     private final BookingService bookingService;
-    private final WebClient.Builder webClientBuilder;
 
+//    Base request for booking service
     @GetMapping("/")
     public ResponseEntity<String> baseRequest() {
         return ResponseEntity.ok("Booking service - up");
     }
 
+//    Endpoint for saving a users booking
     @PostMapping("/")
     public ResponseEntity<Booking> saveBooking(@RequestBody BookingRequest bookingRequest) {
         Booking booking = bookingService.saveBooking(bookingRequest);
@@ -32,16 +34,11 @@ public class BookingController {
         return new ResponseEntity<>(booking, HttpStatus.CREATED);
     }
 
+//  Updating transaction details for a valid booking with payment method as UPI / CARD
     @PostMapping("/transaction")
     public ResponseEntity<Booking> makePayment(@RequestBody PaymentRequest paymentRequest)
     {
-        Integer transactionID = webClientBuilder.build().post().uri("http://localhost:8001/api/payment/")
-                .body(BodyInserters.fromValue(paymentRequest))
-                .retrieve()
-                .bodyToMono(Integer.class)
-                .block();
-
-        Booking booking = bookingService.updateTransactionInfo(transactionID, paymentRequest.bookingID);
+        Booking booking = bookingService.updateTransactionInfo(paymentRequest);
 
         return new ResponseEntity<>(booking, HttpStatus.OK);
     }
