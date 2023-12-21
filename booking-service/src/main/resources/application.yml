@@ -1,0 +1,20 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/bookmybnb
+    username: root
+    password: MySqlPass1234
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+  application:
+    name: booking-service
+eureka:
+  client:
+    service-url:
+      DefaultZone: http://localhost:8761/eureka
+server:
+  port: 8000
